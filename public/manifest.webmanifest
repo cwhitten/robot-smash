@@ -1,0 +1,16 @@
+{
+  "name": "Robot Smash!",
+  "short_name": "Robot Smash",
+  "description": "Smash bad bots, collect coins, unlock awesome robots!",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0d1520",
+  "theme_color": "#0d1520",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

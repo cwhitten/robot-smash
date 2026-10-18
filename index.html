@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Robot Smash</title>
+    <meta name="theme-color" content="#0d1520" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Robot Smash" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div id="floaters"></div>
+    <div id="hurt"></div>
+
+    <!-- In-game HUD -->
+    <div id="hud" class="hidden">
+      <div id="heroCard">
+        <img id="heroPortrait" alt="" />
+        <div class="heroInfo">
+          <div class="heroName"><span id="heroName">Jimmy</span> <span id="heroLevel" class="lvl">LV 1</span></div>
+          <div id="heroTitle" class="heroTitle">The Rookie</div>
+          <div class="bar hp"><div id="hpFill" class="fill"></div><span id="hpText">100 / 100</span></div>
+          <div id="superWrap" class="bar super"><div id="superFill" class="fill"></div><span id="superText">SUPER</span></div>
+        </div>
+      </div>
+
+      <div id="topRight">
+        <div id="coinBox"><span class="coin"></span><span id="coinCount">0</span></div>
+        <div id="nextGoal"></div>
+        <canvas id="minimap" width="220" height="220"></canvas>
+      </div>
+
+      <div id="bossBar" class="hidden">
+        <div id="bossName">BOSS</div>
+        <div class="bar boss"><div id="bossFill" class="fill"></div></div>
+      </div>
+
+      <div id="abilities"></div>
+      <button id="shopBtn" title="Robot Shop (B)">🛒 Shop <kbd>B</kbd></button>
+      <div id="hint" class="hidden"></div>
+      <div id="clickHint" class="hidden">🖱️ Click the game to look around with the mouse</div>
+      <div id="banner"></div>
+      <div id="toast"></div>
+
+      <!-- Touch controls (shown on tablets/phones only) -->
+      <div id="touchControls">
+        <div id="stickZone"><div id="stickBase"><div id="stickKnob"></div></div><span class="stickHint">Move</span></div>
+        <button class="tbtn" id="tPause" data-code="TouchPause" aria-label="Pause">⏸</button>
+        <div id="tButtons">
+          <button class="tbtn" id="tAttack" data-code="KeyJ" aria-label="Attack">👊</button>
+          <button class="tbtn" id="tAttack2" data-code="KeyK" aria-label="Second attack">💥</button>
+          <button class="tbtn" id="tJump" data-code="Space" aria-label="Jump">⬆️</button>
+          <button class="tbtn" id="tDash" data-code="ShiftLeft" aria-label="Dash">💨</button>
+          <button class="tbtn super" id="tSuper" data-code="KeyE" aria-label="Super">⭐</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title screen -->
+    <div id="title" class="screen">
+      <div class="titleBox">
+        <h1 class="logo"><span>ROBOT</span><span class="smash">SMASH!</span></h1>
+        <p class="tag">Smash bad bots, collect coins, unlock awesome robots!</p>
+        <button id="playBtn" class="big" disabled>▶ PLAY</button>
+        <div id="loading">Building the world…</div>
+        <div class="controls touchHelp">
+          <div>👈 Left thumb: Move</div>
+          <div>👉 Swipe: Look around</div>
+          <div>👊 Attack (hold it!)</div>
+          <div>💥 2nd attack</div>
+          <div>💨 Dash</div>
+          <div>⬆️ Jump</div>
+          <div>⭐ SUPER power</div>
+          <div>🛒 Robot Shop</div>
+        </div>
+        <div class="controls keyHelp">
+          <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</div>
+          <div><kbd>Mouse</kbd> Look around</div>
+          <div><kbd>Left Click</kbd> / <kbd>J</kbd> Attack</div>
+          <div><kbd>Right Click</kbd> / <kbd>K</kbd> 2nd attack</div>
+          <div><kbd>Shift</kbd> Dash</div>
+          <div><kbd>Space</kbd> Jump</div>
+          <div><kbd>E</kbd> SUPER power</div>
+          <div><kbd>B</kbd> Robot Shop</div>
+          <div><kbd>M</kbd> Music on/off</div>
+          <div><kbd>Esc</kbd> Pause</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop -->
+    <div id="shop" class="screen hidden">
+      <div class="panel shopPanel">
+        <div class="shopHead">
+          <h2>🤖 ROBOT SHOP</h2>
+          <div class="shopCoins"><span class="coin"></span><span id="shopCoins">0</span></div>
+          <button id="shopClose" class="x">✕</button>
+        </div>
+        <div id="shopCards"></div>
+        <p class="shopTip">Smash bad bots and grab shiny coins to save up for stronger robots! Bosses drop LOTS of coins.</p>
+      </div>
+    </div>
+
+    <!-- Pause -->
+    <div id="pause" class="screen hidden">
+      <div class="panel small">
+        <h2>Paused</h2>
+        <button id="resumeBtn" class="big">▶ Keep Playing</button>
+        <label>🎵 Music <input id="musicVol" type="range" min="0" max="1" step="0.05" /></label>
+        <label>🔊 Sounds <input id="sfxVol" type="range" min="0" max="1" step="0.05" /></label>
+        <label>🖥️ Graphics
+          <select id="quality">
+            <option value="high">Beautiful</option>
+            <option value="fast">Fast</option>
+          </select>
+        </label>
+        <div id="stats" class="stats"></div>
+        <button id="resetBtn" class="danger">Start Over (erase progress)</button>
+      </div>
+    </div>
+
+    <!-- Death -->
+    <div id="death" class="screen hidden">
+      <div class="panel small center">
+        <h2 id="deathTitle">Oh no! You got smashed!</h2>
+        <p id="deathText"></p>
+        <button id="respawnBtn" class="big">🔧 Rebuild &amp; Try Again</button>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
