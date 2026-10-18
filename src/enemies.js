@@ -292,7 +292,9 @@ export class Enemy {
     if (faceYaw === null && hs > 0.3) faceYaw = Math.atan2(this.vel.x, this.vel.z);
     if (faceYaw !== null) this.yaw = angleLerp(this.yaw, faceYaw, 1 - Math.exp(-10 * dt));
 
-    if (this.action && this.state !== 'windup') {
+    // Windup actions are driven by their state (windup / special) — advancing them here too
+    // would null the action a frame early and crash _updateSpecial.
+    if (this.action && !this.action.windup) {
       this.action.t += dt / this.action.dur;
       if (this.action.t >= 1) this.action = null;
     }
